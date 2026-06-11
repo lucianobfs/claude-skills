@@ -80,7 +80,7 @@ const judged = await pipeline(
     parallel(
       LENSES.map((lens) => () =>
         agent(
-          `Problem: "${problem}". Try to REFUTE this root-cause theory via the lens of ${lens}\nTheory: ${t.theory}\nClaimed support: ${t.supportingEvidence}\nInvestigate the actual code/logs/data. Default to refuted=true if the theory does not clearly hold.`,
+          `Problem: "${problem}". Try to REFUTE this root-cause theory via the lens of ${lens}\nTheory: ${t.theory}\nClaimed support: ${t.supportingEvidence}\nInvestigate the actual code/logs/data — the evidence sources for this problem are: ${evidence.join(' | ')}. Default to refuted=true if the theory does not clearly hold.`,
           { label: `refute:${i + 1}`, phase: 'Refute', schema: REFUTE_SCHEMA, agentType: 'wf-heavy' }
         )
       )

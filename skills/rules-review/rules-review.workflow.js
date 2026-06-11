@@ -74,7 +74,7 @@ const confirmed = await pipeline(
     const judged = await parallel(
       flags.violations.map((v) => () =>
         agent(
-          `A reviewer flagged this as violating "${rule}":\n${v.file}:${v.line} — ${v.excerpt || ''}\nReason given: ${v.why}\nRe-read the actual file at that location. Is this a REAL violation, or a false positive (test fixture, generated code, pre-existing line not touched by the diff, rule misread)? Default to false positive when uncertain.`,
+          `A reviewer flagged this as violating "${rule}":\n${v.file}:${v.line} — ${v.excerpt || ''}\nReason given: ${v.why}\nRe-run \`${diffCmd}\` to locate the file (paths are relative to the repo that command targets — use the same -C/working dir) and re-read the flagged location. Is this a REAL violation, or a false positive (test fixture, generated code, pre-existing line not touched by the diff, rule misread)? Default to false positive when uncertain.`,
           { label: `skeptic:${v.file}`, phase: 'Skeptic', schema: SKEPTIC_SCHEMA, agentType: 'wf-heavy' }
         ).then((j) => (j && j.isReal ? { ...v, confirmedBy: j.reason } : null))
       )
