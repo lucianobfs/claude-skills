@@ -9,9 +9,11 @@ export const meta = {
   ],
 }
 
-const items = (args && args.items) || []
-const criterion = (args && args.criterion) || ''
-const topN = (args && args.topN) || 5
+const A = (() => { if (typeof args === 'string') { try { return JSON.parse(args) } catch (e) { return {} } } return args || {} })()
+
+const items = (A && A.items) || []
+const criterion = (A && A.criterion) || ''
+const topN = (A && A.topN) || 5
 if (!items.length || !criterion) throw new Error('Pass args: { items: [...], criterion: "..." }')
 
 const BUCKET_SCHEMA = {

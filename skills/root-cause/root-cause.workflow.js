@@ -9,8 +9,10 @@ export const meta = {
   ],
 }
 
-const problem = (args && args.problem) || ''
-const evidence = (args && args.evidence) || []
+const A = (() => { if (typeof args === 'string') { try { return JSON.parse(args) } catch (e) { return {} } } return args || {} })()
+
+const problem = (A && A.problem) || ''
+const evidence = (A && A.evidence) || []
 if (!problem || evidence.length < 2) {
   throw new Error('Pass args: { problem: "...", evidence: ["source 1", "source 2", ...] } — at least 2 disjoint evidence sources')
 }

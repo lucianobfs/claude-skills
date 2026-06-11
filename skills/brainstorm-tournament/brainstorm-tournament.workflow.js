@@ -9,9 +9,11 @@ export const meta = {
   ],
 }
 
-const brief = (args && args.brief) || ''
-const rubric = (args && args.rubric) || 'memorable, clear, no negative connotations, easy to say out loud'
-const perAngle = (args && args.perAngle) || 8
+const A = (() => { if (typeof args === 'string') { try { return JSON.parse(args) } catch (e) { return {} } } return args || {} })()
+
+const brief = (A && A.brief) || ''
+const rubric = (A && A.rubric) || 'memorable, clear, no negative connotations, easy to say out loud'
+const perAngle = (A && A.perAngle) || 8
 if (!brief) throw new Error('Pass args: { brief: "...", rubric: "..." }')
 
 const ANGLES = [

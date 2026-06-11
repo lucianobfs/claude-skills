@@ -10,8 +10,10 @@ export const meta = {
   ],
 }
 
-const source = (args && args.source) || ''
-const context = (args && args.context) || 'the local codebase and the web'
+const A = (() => { if (typeof args === 'string') { try { return JSON.parse(args) } catch (e) { return {} } } return args || {} })()
+
+const source = (A && A.source) || ''
+const context = (A && A.context) || 'the local codebase and the web'
 if (!source) throw new Error('Pass args: { source: "<file path or inline text>" }')
 
 const CLAIMS_SCHEMA = {

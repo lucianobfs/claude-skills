@@ -9,8 +9,10 @@ export const meta = {
   ],
 }
 
-const diffCmd = (args && args.diffCmd) || 'git diff HEAD'
-let rules = (args && args.rules) || []
+const A = (() => { if (typeof args === 'string') { try { return JSON.parse(args) } catch (e) { return {} } } return args || {} })()
+
+const diffCmd = (A && A.diffCmd) || 'git diff HEAD'
+let rules = (A && A.rules) || []
 
 const RULES_SCHEMA = {
   type: 'object',

@@ -9,10 +9,12 @@ export const meta = {
   ],
 }
 
-const items = (args && args.items) || []
-const tracked = (args && args.tracked) || 'none — assume nothing is tracked yet'
+const A = (() => { if (typeof args === 'string') { try { return JSON.parse(args) } catch (e) { return {} } } return args || {} })()
+
+const items = (A && A.items) || []
+const tracked = (A && A.tracked) || 'none — assume nothing is tracked yet'
 const actionPolicy =
-  (args && args.actionPolicy) ||
+  (A && A.actionPolicy) ||
   'You may draft fixes and prepare PR branches. Do NOT push, post, send messages or close tickets — list those as escalations for a human.'
 if (!items.length) throw new Error('Pass args: { items: [...] } — each item is a ticket/report/message or a path to one')
 
