@@ -25,10 +25,18 @@ Seis workflows prontos baseados nos padrões de
 | `brainstorm-tournament` | Geradores em ângulos criativos distintos → filtro por rubrica → torneio pairwise até o top 3 |
 | `triage-backlog` | Triagem em escala com padrão quarentena: leitores read-only resumem conteúdo não-confiável, ator privilegiado nunca vê o texto cru |
 
-**Uso:** `/wf <descrição da tarefa>` — o dispatcher escolhe o workflow, monta os `args` e roda.
-Ou descreva a tarefa normalmente ("verifica esse relatório", "por que esse teste tá flaky?") que a skill dispara sozinha.
+**Uso:** cada workflow é uma skill própria — depois de instalar, invoque direto pelo slash:
 
-**Roteamento de modelo/effort** (incluso em `skills/wf/agents/`):
+```
+/deep-verify docs/relatorio.md
+/root-cause o teste de billing tá flaky; evidências: logs do CI e o módulo billing/
+/tournament-rank ranqueia os arquivos de bugs/ por severidade
+```
+
+Ou use o dispatcher `/wf <descrição da tarefa>`, que escolhe o workflow certo e monta os `args`.
+Descrever a tarefa normalmente ("verifica esse relatório") também dispara a skill certa sozinha.
+
+**Roteamento de modelo/effort** (agent types inclusos em cada skill, em `agents/`):
 
 - Orquestrador: o modelo da sessão (ideal: Fable)
 - `wf-heavy`: Opus @ effort **xhigh** — investigação, verificação, geração, ação em worktree
@@ -41,15 +49,6 @@ Na primeira execução, a skill copia os dois agent types para `~/.claude/agents
 Cada item/claim/regra/hipótese vira **um ou mais subagents Opus em effort xhigh**. Um `deep-verify`
 num doc com 40 claims dispara 40+ agentes. Para limitar, declare um teto no pedido
 ("use 200k tokens") — os workflows respeitam via `budget`.
-
-#### Opcional: slash commands individuais
-
-O Claude Code expõe workflows salvos em `~/.claude/workflows/` como slash commands próprios
-(`/deep-verify`, `/root-cause`, ...). Se preferir isso ao dispatcher:
-
-```bash
-cp ~/.claude/skills/wf/workflows/*.workflow.js ~/.claude/workflows/
-```
 
 ## Licença
 
