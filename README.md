@@ -8,47 +8,41 @@ Skills compartilháveis para Claude Code (e outros agentes compatíveis com [Age
 npx skills add lucianobfs/claude-skills
 ```
 
-## Skills
+## Os 6 padrões de workflow dinâmico
 
-### `wf` — suite de workflows dinâmicos multi-agente
-
-Seis workflows prontos baseados nos padrões de
+Os seis **blocos de montar** de
 ["A harness for every task"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code)
-(Thariq Shihipar & Sid Bidasaria):
+(Thariq Shihipar & Sid Bidasaria), cada um como skill própria (invocável por slash) + o guia `wf`:
 
-| Workflow | O que faz |
-|---|---|
-| `deep-verify` | Extrai toda afirmação factual de um doc/relatório e verifica cada uma com um subagent próprio + auditoria cética das fontes |
-| `tournament-rank` | Ranqueia muitos itens por critério qualitativo: buckets em paralelo → playoff pairwise → double-check adversarial do top N |
-| `rules-review` | Revisa o `git diff` com um verificador por regra do projeto (minera CLAUDE.md) + cético que mata falsos positivos |
-| `root-cause` | Investigação de causa raiz: hipóteses de evidências disjuntas → painel de refutadores → confirmação reproduzida em worktree |
-| `brainstorm-tournament` | Geradores em ângulos criativos distintos → filtro por rubrica → torneio pairwise até o top 3 |
-| `triage-backlog` | Triagem em escala com padrão quarentena: leitores read-only resumem conteúdo não-confiável, ator privilegiado nunca vê o texto cru |
+| Skill | Padrão | args |
+|---|---|---|
+| `classify-and-act` | classificador roteia a task pra 1 de N handlers | `{ task, routes }` |
+| `fanout-and-synthesize` | 1 agente por parte (contexto limpo) → barreira sintetiza | `{ task, parts? }` |
+| `adversarial-verification` | worker produz, N céticos tentam refutar | `{ task, rubric?, verifiers? }` |
+| `generate-and-filter` | geradores em paralelo → filtro dedupe + rubrica | `{ brief, rubric?, count? }` |
+| `tournament` | N abordagens competem → bracket pairwise → 1 vencedor | `{ task, approaches? }` |
+| `loop-until-done` | repete spawn até stop condition | `{ task, patience?, maxRounds? }` |
+| `wf` | guia: quando usar cada padrão + como compor casos de uso | — |
 
-**Uso:** cada workflow é uma skill própria — depois de instalar, invoque direto pelo slash:
+**Filosofia:** publicamos os **padrões** (blocos de montar), não casos de uso prontos. Um caso de uso é
+um ponto fixo no espaço de tarefas — limita. Os padrões compõem e cobrem a cauda longa. A skill `wf` traz
+a tabela de casos de uso comuns (verificação de doc, ranqueamento, triagem, causa raiz, etc.) e quais
+padrões combinar pra cada um.
 
-```
-/deep-verify docs/relatorio.md
-/root-cause o teste de billing tá flaky; evidências: logs do CI e o módulo billing/
-/tournament-rank ranqueia os arquivos de bugs/ por severidade
-```
-
-Ou use o dispatcher `/wf <descrição da tarefa>`, que escolhe o workflow certo e monta os `args`.
-Descrever a tarefa normalmente ("verifica esse relatório") também dispara a skill certa sozinha.
+**Uso:** depois de instalar, invoque direto pelo slash (`/tournament ...`) ou descreva a tarefa.
 
 **Roteamento de modelo/effort** (agent types inclusos em cada skill, em `agents/`):
 
 - Orquestrador: o modelo da sessão (ideal: Fable)
-- `wf-heavy`: Opus @ effort **xhigh** — investigação, verificação, geração, ação em worktree
+- `wf-heavy`: Opus @ effort **xhigh** — trabalho pesado (investigação, verificação, geração, ação)
 - `wf-judge`: Sonnet @ effort **max** — juízes pairwise, classificadores, auditores
 
-Na primeira execução, a skill copia os dois agent types para `~/.claude/agents/` (pode pedir um restart de sessão).
+Na primeira execução, copie os dois agent types pra `~/.claude/agents/` (pode pedir restart de sessão).
 
 #### ⚠️ Custo
 
-Cada item/claim/regra/hipótese vira **um ou mais subagents Opus em effort xhigh**. Um `deep-verify`
-num doc com 40 claims dispara 40+ agentes. Para limitar, declare um teto no pedido
-("use 200k tokens") — os workflows respeitam via `budget`.
+Cada parte/claim/item vira **um ou mais subagents Opus em effort xhigh**. Para limitar, declare um teto
+no pedido ("use 200k tokens") — respeitado via `budget`.
 
 ## Licença
 

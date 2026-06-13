@@ -1,47 +1,53 @@
 ---
 name: wf
-description: Dispatcher da suite de workflows dinâmicos multi-agente (deep-verify, tournament-rank, rules-review, root-cause, brainstorm-tournament, triage-backlog). Use quando o usuário pedir /wf com uma descrição de tarefa e for preciso escolher qual workflow se encaixa, ou quando pedir um workflow multi-agente novo que não casa com nenhum dos seis.
+description: Guia dos 6 padrões canônicos de workflow dinâmico multi-agente (classify-and-act, fanout-and-synthesize, adversarial-verification, generate-and-filter, tournament, loop-until-done). Use quando o usuário pedir /wf, quando precisar escolher/compor um padrão pra uma tarefa grande/paralela/adversarial, ou pra montar um workflow novo a partir dos blocos.
 ---
 
-# wf — dispatcher da suite de workflows
+# wf — guia dos padrões de workflow dinâmico
 
-Cada workflow desta suite é uma skill própria, instalada como irmã desta
-(`deep-verify`, `tournament-rank`, `rules-review`, `root-cause`, `brainstorm-tournament`,
-`triage-backlog`) — todas invocáveis diretamente por slash command. Esta skill só roteia.
+Esta suite publica os **6 blocos de montar** de
+["A harness for every task"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code),
+não casos de uso prontos. Cada padrão é uma skill irmã, invocável direto. Casos de uso reais são
+**composição** desses padrões (tabela abaixo).
 
-## Como despachar
+## Os 6 padrões (skills irmãs)
 
-1. Identifique qual workflow casa com o pedido (tabela abaixo).
-2. Invoque a tool **Skill** com o nome da skill correspondente, passando o pedido do usuário em `args`.
-   A skill do workflow cuida de montar os args, rodar e resumir.
-3. Se a skill não estiver instalada, oriente: `npx skills add lucianobfs/claude-skills`.
+| Skill | Quando | args |
+|---|---|---|
+| `classify-and-act` | o comportamento depende do tipo do input; rotear | `{ task, routes: [{name, when, do}] }` |
+| `fanout-and-synthesize` | muitas partes independentes, cada uma em contexto limpo | `{ task, parts? }` |
+| `adversarial-verification` | uma resposta precisa ser confiável antes de agir | `{ task, rubric?, verifiers? }` |
+| `generate-and-filter` | quer amplitude e depois qualidade (ideias, casos de teste) | `{ brief, rubric?, count? }` |
+| `tournament` | espaço de solução amplo; melhor de N tentativas → 1 vencedor | `{ task, approaches? }` |
+| `loop-until-done` | quantidade de trabalho desconhecida (achar TODOS os X) | `{ task, patience?, maxRounds? }` |
 
-| Pedido parece com... | Skill |
+Despacho: identifique o padrão, invoque a tool **Skill** com o nome correspondente passando o pedido em
+`args`. Se não estiver instalada: `npx skills add lucianobfs/claude-skills`.
+
+## Casos de uso = composição de padrões
+
+| Cenário | Como montar |
 |---|---|
-| "verifica esse relatório/doc/PRD", "tem alguma afirmação errada aqui?" | `deep-verify` |
-| "ranqueia/prioriza esses N itens por X" | `tournament-rank` |
-| "revisa o diff antes do PR", "isso viola as regras do projeto?" | `rules-review` |
-| "por que esse bug/teste flaky/queda acontece?", post-mortem | `root-cause` |
-| "me dá ideias de nome/design/abordagem e escolhe as melhores" | `brainstorm-tournament` |
-| "triagem desses tickets/reports/feedbacks" | `triage-backlog` |
+| Verificar doc/relatório/PRD | `fanout` (1 agente extrai todo claim) → um `adversarial-verification` por claim → auditor de fonte |
+| Ranquear N itens por critério | `tournament` / bucket-rank paralelo + merge (pairwise > nota absoluta) |
+| Revisar diff vs regras antes do PR | um verificador por regra + cético que mata falso-positivo (`adversarial-verification`) |
+| Causa raiz / post-mortem | hipóteses de evidências disjuntas → painel de refutadores → confirmação |
+| Decisão de gosto (nome/design) | `generate-and-filter` por ângulos + `tournament` pela rubrica |
+| Triagem de fila em escala | `classify-and-act` + quarentena (leitor read-only vs ator privilegiado) + dedupe; parear com `/loop` |
+| Migração/refactor em massa | 1 agente por callsite em worktree → review adversarial → merge |
 
 ## Compondo um workflow novo
 
-Se o pedido exige orquestração multi-agente mas não casa com nenhum dos seis, componha um
-workflow na hora usando os das skills irmãs como template. Convenções:
+Se a tarefa exige orquestração mas não casa com um padrão só, componha usando os `.workflow.js` das skills
+irmãs como template:
 
-- `meta` é literal puro; `phases` casa com as chamadas `phase()`.
-- Validação de `args` no topo — falhe cedo com a assinatura esperada.
-- `pipeline()` por padrão; `parallel()` só onde há barreira genuína (dedupe global, bracket).
-- Verificadores céticos com viés para falso-positivo/refuted — é isso que segura a precisão.
-- Roteamento de modelo/effort via `agentType: "wf-heavy"` (Opus @ xhigh, trabalho pesado) e
-  `agentType: "wf-judge"` (Sonnet @ max, juízes/classificadores). Os agent types estão em
-  `agents/` desta skill — garanta que existem em `~/.claude/agents/` (copie se preciso; pode
-  exigir restart de sessão).
-- Sem `Date.now()`/`Math.random()` — quebraria o resume.
+- `meta` literal puro; `phases` casa com `phase()`.
+- Validação de `args` no topo.
+- `pipeline()` por padrão; `parallel()` só com barreira genuína (sintetizar, tally, bracket, dedupe global).
+- `agentType: "wf-heavy"` (Opus @ xhigh) e `wf-judge` (Sonnet @ max); garanta que existem em `~/.claude/agents/`.
+- Verificadores céticos com viés pra refutar. Sem `Date.now()`/`Math.random()`.
 
 ## Custo
 
-Estes workflows disparam fan-outs de subagents Opus @ xhigh. Avise o usuário antes de rodar em
-listas grandes; ele pode limitar com um teto de tokens no pedido ("use 200k tokens"), que os
-workflows respeitam via `budget`.
+Fan-outs de subagents Opus @ xhigh. Avise antes de listas grandes; o usuário pode limitar
+("use 200k tokens"), respeitado via `budget`.
