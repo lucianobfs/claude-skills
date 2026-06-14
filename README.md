@@ -1,49 +1,55 @@
 # claude-skills
 
-Skills compartilháveis para Claude Code (e outros agentes compatíveis com [Agent Skills](https://skills.sh)).
+Shareable skills for Claude Code (and other agents compatible with [Agent Skills](https://skills.sh)).
 
-## Instalação
+## Install
 
 ```bash
 npx skills add lucianobfs/claude-skills
 ```
 
-## Os 6 padrões de workflow dinâmico
+## The 6 dynamic-workflow patterns
 
-Os seis **blocos de montar** de
+The six **building blocks** from
 ["A harness for every task"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code)
-(Thariq Shihipar & Sid Bidasaria), cada um como skill própria (invocável por slash) + o guia `wf`:
+(Thariq Shihipar & Sid Bidasaria), each as its own slash-invocable skill, plus the `wf` guide:
 
-| Skill | Padrão | args |
+| Skill | Pattern | args |
 |---|---|---|
-| `classify-and-act` | classificador roteia a task pra 1 de N handlers | `{ task, routes }` |
-| `fanout-and-synthesize` | 1 agente por parte (contexto limpo) → barreira sintetiza | `{ task, parts? }` |
-| `adversarial-verification` | worker produz, N céticos tentam refutar | `{ task, rubric?, verifiers? }` |
-| `generate-and-filter` | geradores em paralelo → filtro dedupe + rubrica | `{ brief, rubric?, count? }` |
-| `tournament` | N abordagens competem → bracket pairwise → 1 vencedor | `{ task, approaches? }` |
-| `loop-until-done` | repete spawn até stop condition | `{ task, patience?, maxRounds? }` |
-| `wf` | guia: quando usar cada padrão + como compor casos de uso | — |
+| `classify-and-act` | a classifier routes the task to 1 of N handlers | `{ task, routes }` |
+| `fanout-and-synthesize` | 1 agent per part (clean context) → a barrier synthesizes | `{ task, parts? }` |
+| `adversarial-verification` | a worker produces, N skeptics try to refute it | `{ task, rubric?, verifiers? }` |
+| `generate-and-filter` | parallel generators → filter dedupes + applies the rubric | `{ brief, rubric?, count? }` |
+| `tournament` | N approaches compete → pairwise bracket → 1 winner | `{ task, approaches? }` |
+| `loop-until-done` | keep spawning until a stop condition | `{ task, patience?, maxRounds? }` |
+| `wf` | guide: when to use each pattern + how to compose use cases | — |
 
-**Filosofia:** publicamos os **padrões** (blocos de montar), não casos de uso prontos. Um caso de uso é
-um ponto fixo no espaço de tarefas — limita. Os padrões compõem e cobrem a cauda longa. A skill `wf` traz
-a tabela de casos de uso comuns (verificação de doc, ranqueamento, triagem, causa raiz, etc.) e quais
-padrões combinar pra cada um.
+**Reach for these often — not just for big jobs.** A workflow beats a single context whenever a task has
+independent parts, deserves a second adversarial pass, is of unknown size, or could be approached from
+several angles: verifying an answer before you trust it, exploring a design, reviewing a diff, ranking
+options, hunting a root cause. Default to launching one.
 
-**Uso:** depois de instalar, invoque direto pelo slash (`/tournament ...`) ou descreva a tarefa.
+**Philosophy:** we publish the **patterns** (building blocks), not canned use cases. A use case is a fixed
+point in task-space — it limits you. The patterns compose and cover the long tail. The `wf` skill carries a
+table of common use cases (doc verification, ranking, triage, root cause, …) and which patterns to combine
+for each.
 
-**Roteamento de modelo/effort** (agent types inclusos em cada skill, em `agents/`):
+**Usage:** after installing, invoke directly by slash (`/tournament ...`) or just describe the task.
 
-- Orquestrador: o modelo da sessão (ideal: Fable)
-- `wf-heavy`: Opus @ effort **xhigh** — trabalho pesado (investigação, verificação, geração, ação)
-- `wf-judge`: Sonnet @ effort **max** — juízes pairwise, classificadores, auditores
+**Model/effort routing** (agent types bundled in each skill, under `agents/`):
 
-Na primeira execução, copie os dois agent types pra `~/.claude/agents/` (pode pedir restart de sessão).
+- Orchestrator: the session model (ideal: Fable)
+- `wf-heavy`: Opus @ effort **xhigh** — heavy work (investigation, verification, generation, action)
+- `wf-judge`: Sonnet @ effort **max** — pairwise judges, classifiers, auditors
 
-#### ⚠️ Custo
+On first run, copy the two agent types into `~/.claude/agents/` (may require a session restart).
 
-Cada parte/claim/item vira **um ou mais subagents Opus em effort xhigh**. Para limitar, declare um teto
-no pedido ("use 200k tokens") — respeitado via `budget`.
+## Cost & budget
 
-## Licença
+Each part/claim/item becomes **one or more Opus subagents at xhigh effort**. Scale the fan-out to the job:
+a few agents for a quick check, a larger pool when you ask for thoroughness. To cap it, state a ceiling in
+your request ("use 200k tokens") — honored via `budget`.
+
+## License
 
 MIT

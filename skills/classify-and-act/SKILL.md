@@ -1,31 +1,31 @@
 ---
 name: classify-and-act
-description: Classify-and-act — um classificador roteia a task pra 1 de N handlers definidos, e o handler escolhido executa. Use quando o comportamento certo depende do tipo do input (rotear pedido, ticket, arquivo, pergunta pro handler que casa). args: { task, routes: [{name, when, do}] }
+description: Classify-and-act — a classifier routes the task to 1 of N defined handlers, then the chosen handler executes. Use when the right behavior depends on the input type (route a request, ticket, file, or question to the matching handler). args: { task, routes: [{name, when, do}] }
 ---
 
 # classify-and-act
 
-Workflow dinâmico (padrão **Classify-and-act** de
+Dynamic workflow (the **Classify-and-act** pattern from
 ["A harness for every task"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code)).
-Script: `classify-and-act.workflow.js` no base dir desta skill.
+Script: `classify-and-act.workflow.js` in this skill's base dir.
 
-## Setup (1ª vez nesta máquina)
+## Setup (first time on this machine)
 
-Usa os agent types `wf-heavy` (Opus @ xhigh) e `wf-judge` (Sonnet @ max). Se `~/.claude/agents/wf-heavy.md`
-e `wf-judge.md` não existirem, copie-os de `agents/` desta skill (pode pedir restart de sessão).
+Uses the agent types `wf-heavy` (Opus @ xhigh) and `wf-judge` (Sonnet @ max). If `~/.claude/agents/wf-heavy.md`
+and `wf-judge.md` don't exist, copy them from this skill's `agents/` (may require a session restart).
 
-## Execução
+## Run
 
-1. Monte `args` a partir do pedido (se faltar obrigatório, pergunte — não invente):
-   - `task` (obrigatório): o que rotear/tratar.
-   - `routes` (obrigatório): `[{ name, when, do }]`, ≥2 rotas.
-2. Invoque a tool **Workflow** com `{ scriptPath: "<base-dir-desta-skill>/classify-and-act.workflow.js", args }`.
-3. Resuma o retorno num texto legível — não despeje JSON cru.
+1. Build `args` from the request (if a required field is missing, ask — don't invent):
+   - `task` (required): what to route/handle.
+   - `routes` (required): `[{ name, when, do }]`, ≥2 routes.
+2. Invoke the **Workflow** tool with `{ scriptPath: "<this-skill's-base-dir>/classify-and-act.workflow.js", args }`.
+3. Summarize the return in readable prose — don't dump raw JSON.
 
-## Retorno
+## Returns
 
 `{ route, reason, result }`.
 
-## Custo
+## Cost
 
-1 classificador (wf-judge) + 1 handler (wf-heavy). Barato. Pra muitos itens, rode o corpo em `pipeline`.
+1 classifier (wf-judge) + 1 handler (wf-heavy). Cheap. For many items, run the body in `pipeline`.

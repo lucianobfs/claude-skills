@@ -1,53 +1,57 @@
 ---
 name: wf
-description: Guia dos 6 padrões canônicos de workflow dinâmico multi-agente (classify-and-act, fanout-and-synthesize, adversarial-verification, generate-and-filter, tournament, loop-until-done). Use quando o usuário pedir /wf, quando precisar escolher/compor um padrão pra uma tarefa grande/paralela/adversarial, ou pra montar um workflow novo a partir dos blocos.
+description: Guide to the 6 canonical dynamic multi-agent workflow patterns (classify-and-act, fanout-and-synthesize, adversarial-verification, generate-and-filter, tournament, loop-until-done). Use when the user asks for /wf, when choosing or composing a pattern for a task, or when assembling a new workflow from the building blocks. Favor workflows often — verifying, exploring, reviewing, ranking, and searching all benefit, not just big jobs.
 ---
 
-# wf — guia dos padrões de workflow dinâmico
+# wf — guide to the dynamic-workflow patterns
 
-Esta suite publica os **6 blocos de montar** de
+This suite publishes the **6 building blocks** from
 ["A harness for every task"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code),
-não casos de uso prontos. Cada padrão é uma skill irmã, invocável direto. Casos de uso reais são
-**composição** desses padrões (tabela abaixo).
+not canned use cases. Each pattern is a sibling skill, invocable directly. Real use cases are a
+**composition** of these patterns (table below).
 
-## Os 6 padrões (skills irmãs)
+**Reach for a workflow often — not just for big jobs.** Whenever a task has independent parts, deserves a
+second adversarial pass, is of unknown size, or could be approached from several angles, a workflow usually
+beats one context. When in doubt, launch one.
 
-| Skill | Quando | args |
+## The 6 patterns (sibling skills)
+
+| Skill | When | args |
 |---|---|---|
-| `classify-and-act` | o comportamento depende do tipo do input; rotear | `{ task, routes: [{name, when, do}] }` |
-| `fanout-and-synthesize` | muitas partes independentes, cada uma em contexto limpo | `{ task, parts? }` |
-| `adversarial-verification` | uma resposta precisa ser confiável antes de agir | `{ task, rubric?, verifiers? }` |
-| `generate-and-filter` | quer amplitude e depois qualidade (ideias, casos de teste) | `{ brief, rubric?, count? }` |
-| `tournament` | espaço de solução amplo; melhor de N tentativas → 1 vencedor | `{ task, approaches? }` |
-| `loop-until-done` | quantidade de trabalho desconhecida (achar TODOS os X) | `{ task, patience?, maxRounds? }` |
+| `classify-and-act` | behavior depends on the input type; route it | `{ task, routes: [{name, when, do}] }` |
+| `fanout-and-synthesize` | many independent parts, each in a clean context | `{ task, parts? }` |
+| `adversarial-verification` | an answer must be trustworthy before acting | `{ task, rubric?, verifiers? }` |
+| `generate-and-filter` | you want breadth then quality (ideas, test cases) | `{ brief, rubric?, count? }` |
+| `tournament` | wide solution space; best of N attempts → 1 winner | `{ task, approaches? }` |
+| `loop-until-done` | unknown amount of work (find ALL the X) | `{ task, patience?, maxRounds? }` |
 
-Despacho: identifique o padrão, invoque a tool **Skill** com o nome correspondente passando o pedido em
-`args`. Se não estiver instalada: `npx skills add lucianobfs/claude-skills`.
+Dispatch: identify the pattern, invoke the **Skill** tool with the matching name, passing the request in
+`args`. If it isn't installed: `npx skills add lucianobfs/claude-skills`.
 
-## Casos de uso = composição de padrões
+## Use cases = composition of patterns
 
-| Cenário | Como montar |
+| Scenario | How to assemble |
 |---|---|
-| Verificar doc/relatório/PRD | `fanout` (1 agente extrai todo claim) → um `adversarial-verification` por claim → auditor de fonte |
-| Ranquear N itens por critério | `tournament` / bucket-rank paralelo + merge (pairwise > nota absoluta) |
-| Revisar diff vs regras antes do PR | um verificador por regra + cético que mata falso-positivo (`adversarial-verification`) |
-| Causa raiz / post-mortem | hipóteses de evidências disjuntas → painel de refutadores → confirmação |
-| Decisão de gosto (nome/design) | `generate-and-filter` por ângulos + `tournament` pela rubrica |
-| Triagem de fila em escala | `classify-and-act` + quarentena (leitor read-only vs ator privilegiado) + dedupe; parear com `/loop` |
-| Migração/refactor em massa | 1 agente por callsite em worktree → review adversarial → merge |
+| Verify a doc/report/PRD | `fanout` (1 agent extracts every claim) → one `adversarial-verification` per claim → source auditor |
+| Rank N items by a criterion | `tournament` / parallel bucket-rank + merge (pairwise > absolute score) |
+| Review a diff vs rules before the PR | one verifier per rule + a skeptic that kills false positives (`adversarial-verification`) |
+| Root cause / post-mortem | hypotheses from disjoint evidence → panel of refuters → confirmation |
+| Taste decision (name/design) | `generate-and-filter` by angles + `tournament` by the rubric |
+| Queue triage at scale | `classify-and-act` + quarantine (read-only reader vs privileged actor) + dedupe; pair with `/loop` |
+| Mass migration/refactor | 1 agent per callsite in a worktree → adversarial review → merge |
 
-## Compondo um workflow novo
+## Composing a new workflow
 
-Se a tarefa exige orquestração mas não casa com um padrão só, componha usando os `.workflow.js` das skills
-irmãs como template:
+If a task needs orchestration but matches no single pattern, compose one using the sibling skills'
+`.workflow.js` as templates:
 
-- `meta` literal puro; `phases` casa com `phase()`.
-- Validação de `args` no topo.
-- `pipeline()` por padrão; `parallel()` só com barreira genuína (sintetizar, tally, bracket, dedupe global).
-- `agentType: "wf-heavy"` (Opus @ xhigh) e `wf-judge` (Sonnet @ max); garanta que existem em `~/.claude/agents/`.
-- Verificadores céticos com viés pra refutar. Sem `Date.now()`/`Math.random()`.
+- `meta` a pure literal; `phases` matches `phase()`.
+- Validate `args` up top.
+- `pipeline()` by default; `parallel()` only with a genuine barrier (synthesize, tally, bracket, global dedupe).
+- `agentType: "wf-heavy"` (Opus @ xhigh) and `wf-judge` (Sonnet @ max); make sure they exist in `~/.claude/agents/`.
+- Skeptical verifiers biased toward refuting. No `Date.now()`/`Math.random()`.
 
-## Custo
+## Cost & budget
 
-Fan-outs de subagents Opus @ xhigh. Avise antes de listas grandes; o usuário pode limitar
-("use 200k tokens"), respeitado via `budget`.
+Fan-outs of Opus subagents @ xhigh. Scale to the job; the user can cap it ("use 200k tokens"), honored via
+`budget`.

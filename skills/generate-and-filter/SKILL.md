@@ -1,31 +1,31 @@
 ---
 name: generate-and-filter
-description: Generate-and-filter — geradores em paralelo brainstormam muitas opções por ângulos diferentes, e um filtro dedupe near-duplicates e corta tudo que falha a rubrica, devolvendo só os sobreviventes. Use quando quer amplitude e depois qualidade (ideias, abordagens, casos de teste, edge cases). args: { brief, rubric?, count? }
+description: Generate-and-filter — parallel generators brainstorm many options from different angles, and one filter dedupes near-duplicates and culls everything that fails the rubric, returning only the survivors. Use when you want breadth then quality (ideas, approaches, test cases, edge cases). args: { brief, rubric?, count? }
 ---
 
 # generate-and-filter
 
-Workflow dinâmico (padrão **Generate-and-filter** de
+Dynamic workflow (the **Generate-and-filter** pattern from
 ["A harness for every task"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code)).
-Script: `generate-and-filter.workflow.js` no base dir desta skill.
+Script: `generate-and-filter.workflow.js` in this skill's base dir.
 
-## Setup (1ª vez)
+## Setup (first time)
 
-Agent types `wf-heavy`/`wf-judge` em `~/.claude/agents/` (copie de `agents/` desta skill se faltarem).
+Agent types `wf-heavy`/`wf-judge` in `~/.claude/agents/` (copy from this skill's `agents/` if missing).
 
-## Execução
+## Run
 
-1. Monte `args` (se faltar obrigatório, pergunte):
-   - `brief` (obrigatório): o que precisa + restrições.
-   - `rubric` (opcional): o que é "bom".
-   - `count` (opcional): opções por ângulo. Default 8.
-2. Invoque **Workflow** com `{ scriptPath: "<base-dir-desta-skill>/generate-and-filter.workflow.js", args }`.
-3. Resuma os `kept`. Pra escolher 1 vencedor, encadeie no `tournament`.
+1. Build `args` (if a required field is missing, ask):
+   - `brief` (required): what you need + constraints.
+   - `rubric` (optional): what "good" means.
+   - `count` (optional): options per angle. Default 8.
+2. Invoke **Workflow** with `{ scriptPath: "<this-skill's-base-dir>/generate-and-filter.workflow.js", args }`.
+3. Summarize the `kept` set. To pick a single winner, chain into `tournament`.
 
-## Retorno
+## Returns
 
 `{ kept[], discarded[], totalGenerated, notes }`.
 
-## Custo
+## Cost
 
-N geradores (wf-heavy) + 1 filtro (wf-judge).
+N generators (wf-heavy) + 1 filter (wf-judge).

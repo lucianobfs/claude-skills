@@ -1,31 +1,31 @@
 ---
 name: adversarial-verification
-description: Adversarial verification — um worker produz a saída e N verificadores independentes tentam REFUTÁ-la contra uma rubrica; só sobrevive se o painel não derrubar. Use quando uma resposta precisa ser confiável antes de você publicar/agir. args: { task, rubric?, verifiers? }
+description: Adversarial verification — a worker produces the output and N independent verifiers try to REFUTE it against a rubric; it survives only if the panel can't take it down. Use when an answer must be trustworthy before you ship or act on it. args: { task, rubric?, verifiers? }
 ---
 
 # adversarial-verification
 
-Workflow dinâmico (padrão **Adversarial verification** de
+Dynamic workflow (the **Adversarial verification** pattern from
 ["A harness for every task"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code)).
-Script: `adversarial-verification.workflow.js` no base dir desta skill.
+Script: `adversarial-verification.workflow.js` in this skill's base dir.
 
-## Setup (1ª vez)
+## Setup (first time)
 
-Agent types `wf-heavy`/`wf-judge` em `~/.claude/agents/` (copie de `agents/` desta skill se faltarem).
+Agent types `wf-heavy`/`wf-judge` in `~/.claude/agents/` (copy from this skill's `agents/` if missing).
 
-## Execução
+## Run
 
-1. Monte `args` (se faltar obrigatório, pergunte):
-   - `task` (obrigatório): o que produzir.
-   - `rubric` (opcional): o que é "correto". Default: factualmente correto, completo, sem claim sem suporte.
-   - `verifiers` (opcional): nº de céticos. Default 3.
-2. Invoque **Workflow** com `{ scriptPath: "<base-dir-desta-skill>/adversarial-verification.workflow.js", args }`.
-3. Resuma; destaque `objections` quando `survived=false`.
+1. Build `args` (if a required field is missing, ask):
+   - `task` (required): what to produce.
+   - `rubric` (optional): what "correct" means. Default: factually correct, complete, no unsupported claims.
+   - `verifiers` (optional): number of skeptics. Default 3.
+2. Invoke **Workflow** with `{ scriptPath: "<this-skill's-base-dir>/adversarial-verification.workflow.js", args }`.
+3. Summarize; highlight `objections` when `survived=false`.
 
-## Retorno
+## Returns
 
 `{ output, survived, refutedBy, of, objections[] }`.
 
-## Custo
+## Cost
 
-1 worker (wf-heavy) + N verificadores (wf-judge).
+1 worker (wf-heavy) + N verifiers (wf-judge).

@@ -1,30 +1,30 @@
 ---
 name: tournament
-description: Tournament — spawna N agentes que atacam a MESMA task com abordagens diferentes, e roda um bracket de eliminação com juízes pairwise frescos até sobrar 1 vencedor. Use quando o espaço de solução é amplo e você quer o melhor de várias tentativas numa task (design, estratégia de implementação, copy). args: { task, approaches? }
+description: Tournament — spawn N agents that attack the SAME task with different approaches, and run an elimination bracket with fresh pairwise judges until one winner remains. Use when the solution space is wide and you want the best of several attempts at one task (design, implementation strategy, copy). args: { task, approaches? }
 ---
 
 # tournament
 
-Workflow dinâmico (padrão **Tournament** de
+Dynamic workflow (the **Tournament** pattern from
 ["A harness for every task"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code)).
-Script: `tournament.workflow.js` no base dir desta skill.
+Script: `tournament.workflow.js` in this skill's base dir.
 
-## Setup (1ª vez)
+## Setup (first time)
 
-Agent types `wf-heavy`/`wf-judge` em `~/.claude/agents/` (copie de `agents/` desta skill se faltarem).
+Agent types `wf-heavy`/`wf-judge` in `~/.claude/agents/` (copy from this skill's `agents/` if missing).
 
-## Execução
+## Run
 
-1. Monte `args` (se faltar obrigatório, pergunte):
-   - `task` (obrigatório): o que tentar.
-   - `approaches` (opcional): lista de abordagens distintas. Se omitido, usa 4 genéricas.
-2. Invoque **Workflow** com `{ scriptPath: "<base-dir-desta-skill>/tournament.workflow.js", args }`.
-3. Resuma o `winner`.
+1. Build `args` (if a required field is missing, ask):
+   - `task` (required): what to attempt.
+   - `approaches` (optional): list of distinct approaches. If omitted, 4 generic ones are used.
+2. Invoke **Workflow** with `{ scriptPath: "<this-skill's-base-dir>/tournament.workflow.js", args }`.
+3. Summarize the `winner`.
 
-## Retorno
+## Returns
 
 `{ winner, totalAttempts }`.
 
-## Custo
+## Cost
 
-N tentativas (wf-heavy) + juízes pairwise (wf-judge) por rodada.
+N attempts (wf-heavy) + pairwise judges (wf-judge) per round.

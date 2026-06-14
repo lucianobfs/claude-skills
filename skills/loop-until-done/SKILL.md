@@ -1,31 +1,31 @@
 ---
 name: loop-until-done
-description: Loop-until-done — fica spawnando agentes pra fazer mais de uma task aberta até uma stop condition (nenhuma descoberta nova por N rodadas), em vez de um número fixo de passes. Use quando a quantidade de trabalho é desconhecida (achar TODOS os bugs, TODOS os links quebrados, todo TODO). args: { task, patience?, maxRounds? }
+description: Loop-until-done — keep spawning agents to do more of an open-ended task until a stop condition (no new findings for N rounds), instead of a fixed number of passes. Use when the amount of work is unknown (find ALL the bugs, ALL the broken links, every TODO). args: { task, patience?, maxRounds? }
 ---
 
 # loop-until-done
 
-Workflow dinâmico (padrão **Loop until done** de
+Dynamic workflow (the **Loop until done** pattern from
 ["A harness for every task"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code)).
-Script: `loop-until-done.workflow.js` no base dir desta skill.
+Script: `loop-until-done.workflow.js` in this skill's base dir.
 
-## Setup (1ª vez)
+## Setup (first time)
 
-Agent types `wf-heavy`/`wf-judge` em `~/.claude/agents/` (copie de `agents/` desta skill se faltarem).
+Agent types `wf-heavy`/`wf-judge` in `~/.claude/agents/` (copy from this skill's `agents/` if missing).
 
-## Execução
+## Run
 
-1. Monte `args` (se faltar obrigatório, pergunte):
-   - `task` (obrigatório): o que ficar achando/fazendo.
-   - `patience` (opcional): rodadas vazias seguidas antes de parar. Default 1.
-   - `maxRounds` (opcional): backstop de segurança. Default 12.
-2. Invoque **Workflow** com `{ scriptPath: "<base-dir-desta-skill>/loop-until-done.workflow.js", args }`.
-3. Resuma `findings` e `stoppedReason`.
+1. Build `args` (if a required field is missing, ask):
+   - `task` (required): what to keep finding/doing.
+   - `patience` (optional): consecutive empty rounds before stopping. Default 1.
+   - `maxRounds` (optional): safety backstop. Default 12.
+2. Invoke **Workflow** with `{ scriptPath: "<this-skill's-base-dir>/loop-until-done.workflow.js", args }`.
+3. Summarize `findings` and `stoppedReason`.
 
-## Retorno
+## Returns
 
 `{ findings[], rounds, stoppedReason }`.
 
-## Custo
+## Cost
 
-1 agente (wf-heavy) por rodada até a stop condition. Pareie com `/loop` pra rodar contínuo.
+1 agent (wf-heavy) per round until the stop condition. Pair with `/loop` to run continuously.

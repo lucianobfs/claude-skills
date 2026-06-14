@@ -1,30 +1,30 @@
 ---
 name: fanout-and-synthesize
-description: Fan-out-and-synthesize — quebra a task em partes independentes, 1 agente por parte em contexto limpo, e um passo-barreira sintetiza todos os resultados num só. Use quando há muitas partes independentes que se beneficiam de contexto isolado (análise por arquivo, resumo por seção, coleta multi-fonte). args: { task, parts? }
+description: Fan-out-and-synthesize — split a task into independent parts, 1 agent per part in a clean context, and a barrier step synthesizes all results into one. Use when there are many independent parts that benefit from isolated context (per-file analysis, per-section summary, multi-source gather). args: { task, parts? }
 ---
 
 # fanout-and-synthesize
 
-Workflow dinâmico (padrão **Fan-out-and-synthesize** de
+Dynamic workflow (the **Fan-out-and-synthesize** pattern from
 ["A harness for every task"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code)).
-Script: `fanout-and-synthesize.workflow.js` no base dir desta skill.
+Script: `fanout-and-synthesize.workflow.js` in this skill's base dir.
 
-## Setup (1ª vez)
+## Setup (first time)
 
-Agent types `wf-heavy`/`wf-judge` em `~/.claude/agents/` (copie de `agents/` desta skill se faltarem).
+Agent types `wf-heavy`/`wf-judge` in `~/.claude/agents/` (copy from this skill's `agents/` if missing).
 
-## Execução
+## Run
 
-1. Monte `args` (se faltar obrigatório, pergunte):
-   - `task` (obrigatório): o objetivo geral.
-   - `parts` (opcional): lista de subtarefas. Se omitido, um planner quebra a task em 3-8 partes.
-2. Invoque **Workflow** com `{ scriptPath: "<base-dir-desta-skill>/fanout-and-synthesize.workflow.js", args }`.
-3. Resuma o retorno.
+1. Build `args` (if a required field is missing, ask):
+   - `task` (required): the overall goal.
+   - `parts` (optional): list of subtasks. If omitted, a planner splits the task into 3–8 parts.
+2. Invoke **Workflow** with `{ scriptPath: "<this-skill's-base-dir>/fanout-and-synthesize.workflow.js", args }`.
+3. Summarize the return.
 
-## Retorno
+## Returns
 
 `{ parts[], synthesis }`.
 
-## Custo
+## Cost
 
-1 agente por parte (wf-heavy) + 1 síntese. Avise antes de muitas partes; limite com "use Nk tokens".
+1 agent per part (wf-heavy) + 1 synthesis. For many parts, scale to the job; cap with "use Nk tokens".
